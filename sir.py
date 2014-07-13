@@ -43,7 +43,6 @@ if __name__ == '__main__':
 
     # find optimal beta and gamma parameters
     p_opt = fmin(discrepancy, p, disp=0)
-    print p_opt
     R0 = p_opt[0] / p_opt[1]
 
     # calculate values of SIR model with p_opt
