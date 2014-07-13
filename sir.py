@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 from numpy import array, arange
-from scipy.optimize import minimize
+from scipy.optimize import fmin
 from scipy.integrate import ode, odeint
+import matplotlib.pyplot as plt
 
 
 def dydt(y, t, *args):
@@ -19,6 +20,11 @@ def dydt(y, t, *args):
     return dydt
 
 
+def discrepancy(x):
+    y = odeint(dydt, y0, tspan, args=(x[0], x[1]))
+    return(sum((y[:, 1] - data) ** 2))
+
+
 if __name__ == '__main__':
     # resources:
     # http://www.samsi.info/sites/default/files/Shaby_sir_lab.pdf
@@ -33,11 +39,27 @@ if __name__ == '__main__':
     p = (1e-3, 5e-4)
 
     # set initial conditions
-    S0 = 760
-    I0 = data[0]
-    R0 = 0
+    y0 = (760, data[0], 0)
 
-    y0 = (S0, I0, R0)
-    ode_results = odeint(dydt, y0, tspan, args=p)
+    # find optimal beta and gamma parameters
+    p_opt = fmin(discrepancy, p, disp=0)
+    print p_opt
+    R0 = p_opt[0] / p_opt[1]
 
-    print ode_results
+    # calculate values of SIR model with p_opt
+    y = odeint(dydt, y0, tspan, args=(p_opt[0], p_opt[1]))
+
+    plt.rc('text', usetex=True)
+    plt.plot(tspan, data, '*')
+    plt.plot(tspan, y[:, 1])
+    plt.xlabel('Time Step')
+    plt.ylabel('Infections')
+    plt.title('SIR Model of Influenza')
+    values = (y0[0], p_opt[0], p_opt[1], R0)
+    text = 'Population: %d\nBeta: %.3f\nGamma: %.3f\nR0: %1.3f' % values 
+    plt.annotate(text,
+                 xy=(1, 1),
+                 xycoords='axes fraction',
+                 horizontalalignment='right',
+                 verticalalignment='top')
+    plt.savefig('sir.pdf')
