@@ -55,7 +55,9 @@ if __name__ == '__main__':
     plt.ylabel('Infections')
     plt.title('SIR Model of Influenza')
     values = (y0[0], p_opt[0], p_opt[1], R0)
-    text = 'Population: %d\nBeta: %.3f\nGamma: %.3f\nR0: %1.3f' % values 
+    text = 'Population : %d \n' r'$\beta$ : %.3f ' '\n' r'$\gamma$ : %.3f ' \
+           '\n' r'$R_0$ : %1.3f' % values
+
     plt.annotate(text,
                  xy=(1, 1),
                  xycoords='axes fraction',
